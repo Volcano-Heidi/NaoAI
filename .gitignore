@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件和输出文件
+*.wav
+*.mp3
+*.txt
+*.h5
+*.xml
+*.pyc
+gpt_response.txt
+output_text.txt
+textfile.txt
+response.mp3
+audio.wav
+
+# NAO SDK (大文件，不应提交)
+pynaoqi-python2.7-2.8.6.23-linux64-20191127_152327/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+
+# 环境变量文件
+.env
+.env.local
+
