@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# 启动带性格选择的心理咨询师
+# 启动带性格选择的心理咨询师（使用 DeepSeek API）
 
 echo "=========================================="
 echo "NAO 心理咨询师系统（性格选择版）"
+echo "使用 DeepSeek API"
 echo "=========================================="
 echo ""
 
@@ -34,34 +35,47 @@ fi
 
 echo ""
 
-# 检查SoulChat2.0服务
-echo "检查SoulChat2.0服务..."
-if ! curl -s http://localhost:8001/v1/models > /dev/null 2>&1; then
-    echo "⚠️  警告: SoulChat2.0服务未运行"
-    echo "请先启动SoulChat2.0服务:"
-    echo "  设置 MODEL_NAME_OR_PATH 环境变量后运行 vLLM 服务"
-    echo "  或参考 SOULCHAT_SETUP.md 文档"
-    echo ""
-    read -p "是否继续？(y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
+# 检查 DeepSeek API 配置
+echo "检查 DeepSeek API 配置..."
+if [ -z "$DEEPSEEK_API_KEY" ]; then
+    # 如果没有设置环境变量，使用代码中的默认值
+    echo "⚠️  提示: 未设置 DEEPSEEK_API_KEY 环境变量"
+    echo "将使用代码中的默认 API Key"
+    echo "如需设置环境变量，可以运行："
+    echo "  export DEEPSEEK_API_KEY='sk-d93e850223e548578946315a173c6b70'"
 else
-    echo "✓ SoulChat2.0服务运行正常"
+    echo "✓ DeepSeek API Key 已设置"
+fi
+
+echo ""
+
+# 检查百度语音识别 API 配置
+echo "检查百度语音识别 API 配置..."
+if [ -z "$BAIDU_ASR_API_KEY" ] || [ -z "$BAIDU_ASR_SECRET" ]; then
+    echo "⚠️  提示: 未设置百度语音识别 API 环境变量"
+    echo "将使用代码中的默认配置"
+    echo "如需设置环境变量，可以运行："
+    echo "  export BAIDU_ASR_API_KEY='we9cxZ31lcySBTow6G6cqUqm'"
+    echo "  export BAIDU_ASR_SECRET='pUwUWRWj6yKEdiee1y3ijS8LnPdiDoSw'"
+else
+    echo "✓ 百度语音识别 API 配置已设置"
 fi
 
 echo ""
 
 # 检查NAO连接
 if [ -z "$NAO_IP" ]; then
-    echo "⚠️  未设置NAO_IP环境变量"
-    echo "提示: 设置NAO_IP后，NAO将语音回复并执行动作"
-    echo "      export NAO_IP=你的NAO机器人IP地址"
-    echo ""
-    echo "当前将使用文本模式"
+    # 设置默认 IP
+    export NAO_IP=192.168.10.4
+    export NAO_PORT=9559
+    echo "✓ 使用默认 NAO IP: $NAO_IP"
 else
     echo "✓ NAO机器人IP: $NAO_IP"
+fi
+
+# 确保端口已设置
+if [ -z "$NAO_PORT" ]; then
+    export NAO_PORT=9559
 fi
 
 echo ""
@@ -70,6 +84,6 @@ echo "启动心理咨询师系统..."
 echo "=========================================="
 echo ""
 
-# 运行主程序
-python2 personality_counselor.py
+# 运行主程序（使用 DeepSeek 版本）
+python2 personality_counselor_deepseek.py
 
