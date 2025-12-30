@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # 带性格选择的心理咨询师主程序 - DeepSeek API 版本
-# 支持两种性格：幽默、温柔
+# 支持两种性格：专业评估、共情
 # 集成 NAO 动作和语音交互
 
 import os
@@ -101,6 +101,20 @@ def load_session():
                 # 确保 question_index 存在
                 if 'question_index' not in session:
                     session['question_index'] = 0
+                
+                # 兼容旧版本的性格类型，自动转换
+                personality_mapping = {
+                    'humorous': 'professional',  # 旧版本：幽默 -> 新版本：专业评估
+                    'gentle': 'empathetic'       # 旧版本：温柔 -> 新版本：共情
+                }
+                
+                if 'personality' in session and session['personality'] in personality_mapping:
+                    old_personality = session['personality']
+                    session['personality'] = personality_mapping[old_personality]
+                    # 保存更新后的会话
+                    save_session(session)
+                    uprint(u"[提示] 已自动将性格类型从 '%s' 更新为 '%s'" % (old_personality, session['personality']))
+                
                 return session
         except:
             pass
@@ -399,19 +413,20 @@ def get_llm_response(personality, stage, user_input, conversation_history, quest
         uprint(u"[错误] 解析响应失败: %s" % str(e))
         return None
 
-def record_audio_after_speech(audio_recorder, duration=10, nao_ip=None):
-    """在说话后录制音频，并自动识别显示"""
+def record_audio_after_speech(audio_recorder, duration=10, nao_ip=None, motion=None, personality=None):
+    """在说话后录制音频，并自动识别显示（立即开始，无延迟）"""
     if audio_recorder is None:
         uprint(u"[提示] 音频录制功能未启用")
         return None
     
     try:
-        # 停止之前的录音（如果有）
+        # 停止之前的录音（如果有），参考用户提供的代码
         try:
             audio_recorder.stopMicrophonesRecording()
-            time.sleep(0.3)
+            # 不等待，立即开始新的录音（参考用户提供的代码，没有延迟）
         except Exception as e:
-            uprint(u"[提示] 停止之前的录音: %s" % str(e))
+            # 如果没有正在进行的录音，忽略错误
+            pass
         
         # 创建临时文件路径（在NAO机器人上）
         # 使用NAO机器人的/home/nao目录，这个目录通常有写权限
@@ -419,13 +434,48 @@ def record_audio_after_speech(audio_recorder, duration=10, nao_ip=None):
         
         uprint(u"\n[开始录音，请说话...（%d秒）]" % duration)
         
-        # 开始录音
+        # 立即开始录音（不等待，参考用户提供的代码）
         audio_recorder.startMicrophonesRecording(
             remote_path,
             "wav",
             16000,
             [1, 0, 0, 0]  # 使用前左麦克风
         )
+        
+        # 在录音期间只做头部动作，停止所有身体动作
+        if motion is not None:
+            try:
+                # 停止所有正在执行的动作
+                # 方法1: 停止所有关节的运动
+                try:
+                    motion.stopMove()  # 停止所有移动
+                except:
+                    pass
+                
+                # 方法2: 设置身体关节刚度为0，只保留头部关节
+                # 这样可以防止身体动作执行，但允许头部动作
+                body_joints = [
+                    "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw",
+                    "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw",
+                    "LHipPitch", "LHipRoll", "LKneePitch", "LAnklePitch", "LAnkleRoll",
+                    "RHipPitch", "RHipRoll", "RKneePitch", "RAnklePitch", "RAnkleRoll",
+                    "HipRoll", "HipPitch"
+                ]
+                # 停止身体所有关节
+                stiffnesses = [0.0] * len(body_joints)
+                motion.setStiffnesses(body_joints, stiffnesses)
+                
+                # 确保头部关节可用
+                head_joints = ["HeadPitch", "HeadYaw"]
+                motion.setStiffnesses(head_joints, [1.0, 1.0])
+                
+                time.sleep(0.2)  # 短暂等待，确保动作停止
+                
+                # 在录音期间只做头部动作（后台线程）
+                from nao_motions import perform_head_actions_during_recording
+                perform_head_actions_during_recording(motion, duration, personality)
+            except Exception as e:
+                uprint(u"[提示] 停止身体动作失败: %s" % str(e))
         
         # 等待录音完成
         uprint(u"[正在录音中...]")
@@ -437,6 +487,26 @@ def record_audio_after_speech(audio_recorder, duration=10, nao_ip=None):
         # 停止录音
         audio_recorder.stopMicrophonesRecording()
         time.sleep(0.5)  # 等待文件写入完成
+        
+        # 录音结束后，恢复所有关节的刚度
+        if motion is not None:
+            try:
+                # 恢复身体所有关节的刚度
+                body_joints = [
+                    "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw",
+                    "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw",
+                    "LHipPitch", "LHipRoll", "LKneePitch", "LAnklePitch", "LAnkleRoll",
+                    "RHipPitch", "RHipRoll", "RKneePitch", "RAnklePitch", "RAnkleRoll",
+                    "HipRoll", "HipPitch"
+                ]
+                stiffnesses = [1.0] * len(body_joints)
+                motion.setStiffnesses(body_joints, stiffnesses)
+                
+                # 确保头部关节也保持可用
+                head_joints = ["HeadPitch", "HeadYaw"]
+                motion.setStiffnesses(head_joints, [1.0, 1.0])
+            except Exception as e:
+                uprint(u"[提示] 恢复身体动作失败: %s" % str(e))
         
         uprint(u"[录音完成]")
         
@@ -506,9 +576,46 @@ def speak_with_actions(tts, text, motion, animation, personality, audio_recorder
     estimated_duration = text_length / 3.0 if has_non_ascii else text_length / 5.0
     estimated_duration = max(2.0, min(estimated_duration, 15.0))
     
-    # 只在说话过程中执行动作（说话前后不做额外动作）
+    # 在说话过程中执行动作
     if motion is not None:
-        # 在说话期间执行动作（后台线程）
+        # 说话开始时立即触发一个动作
+        try:
+            if personality == 'empathetic':
+                # 共情性格：开始时使用共情动作（点头、歪头、挥手、拥抱、拍肩、抚摸、心口轻触、礼物呈递）
+                import random
+                from nao_motions import (
+                    gentle_slow_nod, empathetic_gentle_tilt, gentle_wave,
+                    empathetic_hug, empathetic_pat_shoulder, empathetic_stroke,
+                    empathetic_heart_touch, empathetic_gift_presentation
+                )
+                empathetic_start_actions = [
+                    gentle_slow_nod,  # 点头
+                    empathetic_gentle_tilt,  # 歪头（轻微）
+                    gentle_wave,  # 挥手
+                    empathetic_hug,  # 拥抱
+                    empathetic_pat_shoulder,  # 拍肩膀
+                    empathetic_stroke,  # 抚摸
+                    empathetic_heart_touch,  # 心口轻触
+                    empathetic_gift_presentation  # 礼物呈递
+                ]
+                action = random.choice(empathetic_start_actions)
+                action(motion)
+            elif personality == 'professional':
+                # 专业性格：开始时使用点头或挥手
+                import random
+                from nao_motions import professional_small_nod, gentle_wave
+                if random.random() < 0.5:
+                    professional_small_nod(motion)
+                else:
+                    gentle_wave(motion)
+            else:
+                # 默认：轻微点头
+                from nao_motions import gentle_nod
+                gentle_nod(motion, 1)
+        except Exception as e:
+            pass
+        
+        # 在说话期间持续执行动作（后台线程）
         def action_thread():
             try:
                 perform_action_during_speech(text_u, motion, animation, estimated_duration, personality)
@@ -519,7 +626,7 @@ def speak_with_actions(tts, text, motion, animation, personality, audio_recorder
         action_t.daemon = True
         action_t.start()
     
-    # 执行 TTS
+    # 执行 TTS（异步，不阻塞）
     try:
         tts.say(text_u.encode('utf-8'))
     except Exception as e:
@@ -527,14 +634,17 @@ def speak_with_actions(tts, text, motion, animation, personality, audio_recorder
         uprint(text_u)
         return
     
-    # 等待说话完成（进一步减少等待时间，让录音更快开始）
-    # 使用更短的等待时间，因为TTS是异步的，实际说话时间可能比估算短
-    time.sleep(max(estimated_duration * 0.3, 1.0))  # 减少到60%的估算时间，最少1.0秒
-    
-    # 如果启用了自动录音，在说话完成后立即开始录音
-    if auto_record and audio_recorder is not None:
-        nao_ip = os.environ.get('NAO_IP', "192.168.10.4")
-        record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip)
+    # TTS是异步的，不需要等待，立即返回
+        # 如果启用了自动录音，在TTS开始后立即开始录音（不等待TTS完成）
+        if auto_record and audio_recorder is not None:
+            # 立即开始录音，不等待TTS完成（参考用户提供的代码，TTS是异步的，录音可以立即开始）
+            nao_ip = os.environ.get('NAO_IP', "192.168.10.4")
+            # 在后台线程中录音，避免阻塞
+            def start_recording():
+                record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip, motion=motion, personality=personality)
+            recording_t = threading.Thread(target=start_recording)
+            recording_t.daemon = True
+            recording_t.start()
 
 def main():
     """主程序"""
@@ -601,15 +711,18 @@ def main():
         # 执行开场动作（根据性格）
         if motion is not None:
             try:
-                from nao_motions import gentle_wave, humorous_tilt_head
-                if personality == 'humorous':
-                    # 幽默性格：挥手+歪头
+                if personality == 'professional':
+                    # 专业评估性格：挥手+点头
+                    from nao_motions import gentle_wave, professional_small_nod
                     gentle_wave(motion)
                     time.sleep(0.3)
-                    humorous_tilt_head(motion)
-                else:  # gentle
-                    # 温柔性格：只要挥手
+                    professional_small_nod(motion)
+                else:  # empathetic
+                    # 共情性格：挥手+轻微点头
+                    from nao_motions import gentle_wave, gentle_slow_nod
                     gentle_wave(motion)
+                    time.sleep(0.3)
+                    gentle_slow_nod(motion)
             except Exception as e:
                 uprint(u"[提示] 开场动作执行失败: %s" % str(e))
         
@@ -629,10 +742,10 @@ def main():
             first_question = COUNSELING_QUESTIONS[session['question_index']]
             
             # 根据性格添加前缀
-            if personality == 'humorous':
-                question_prefix = u"那我们先来聊聊第一个问题吧。"
-            else:  # gentle
+            if personality == 'professional':
                 question_prefix = u"那我们开始第一个问题。"
+            else:  # empathetic
+                question_prefix = u"让我们开始第一个问题。"
             
             first_question_response = question_prefix + first_question
             
@@ -650,10 +763,10 @@ def main():
             })
             save_session(session)
             
-            # 问完第一个问题后立即开始录音
+            # 问完第一个问题后立即开始录音（不等待，立即开始）
             if audio_recorder is not None:
                 nao_ip = os.environ.get('NAO_IP', "192.168.10.4")
-                recognized_text = record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip)
+                recognized_text = record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip, motion=motion, personality=personality)
                 
                 if recognized_text:
                     # 使用识别到的文本作为用户输入，进入主循环处理
@@ -741,7 +854,7 @@ def main():
                                 # 问完问题后立即开始录音（等待用户回答下一个问题）
                                 if not session.get('finished', False) and audio_recorder is not None:
                                     nao_ip = os.environ.get('NAO_IP', "192.168.10.4")
-                                    recognized_text = record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip)
+                                    recognized_text = record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip, motion=motion, personality=personality)
                                     
                                     if recognized_text:
                                         # 使用识别到的文本作为用户输入，直接处理，不进入主循环的录音部分
@@ -904,12 +1017,11 @@ def main():
             speak_with_actions(tts, response, motion, animation, personality, audio_recorder, auto_record=False)
             uprint("")
             
-            # 问完问题后立即开始录音（不等待，立即开始）
-            # 设置标志，让下次循环立即录音
+            # 问完问题后立即开始录音（不等待，立即开始，参考用户提供的代码）
             if session['stage'] == 1 and audio_recorder is not None:
-                # 立即开始录音，获取用户回答
+                # 立即开始录音，获取用户回答（TTS是异步的，可以立即开始录音）
                 nao_ip = os.environ.get('NAO_IP', "192.168.10.4")
-                recognized_text = record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip)
+                recognized_text = record_audio_after_speech(audio_recorder, duration=10, nao_ip=nao_ip, motion=motion, personality=personality)
                 
                 if recognized_text:
                     # 使用识别到的文本作为用户输入

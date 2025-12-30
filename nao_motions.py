@@ -759,6 +759,281 @@ def gentle_comforting_gesture(motion):
     except Exception as e:
         print("Gentle comforting gesture error: %s" % e)
 
+def empathetic_hug(motion):
+    """共情拥抱动作：双手张开向前，模拟拥抱的姿势"""
+    if motion is None:
+        return
+    try:
+        # 双手张开向前（拥抱姿势）
+        names = ["LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll",
+                 "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        # 张开双臂，向前伸出
+        angles = [0.3, 0.6, -1.4, -0.2, 0.3, -0.6, 1.4, 0.2]  # 双臂张开向前
+        times = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]  # 缓慢张开
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持拥抱姿势
+        time.sleep(1.5)
+        
+        # 轻微向前移动（模拟拥抱）
+        angles = [0.2, 0.7, -1.5, -0.1, 0.2, -0.7, 1.5, 0.1]  # 稍微向前
+        times = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持
+        time.sleep(1.0)
+        
+        # 缓慢收回
+        angles = [1.3, 0.1, -1.5, -1.0, 1.3, -0.1, 1.5, 1.0]
+        times = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]  # 缓慢收回
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Empathetic hug error: %s" % e)
+
+def empathetic_pat_shoulder(motion):
+    """共情拍肩膀动作：更明显、更温暖的拍肩膀动作"""
+    if motion is None:
+        return
+    try:
+        # 右手抬起，准备拍肩膀
+        names = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        angles = [0.3, -0.5, 0.9, 0.7]  # 手到肩膀位置，动作更大
+        times = [0.6, 0.6, 0.6, 0.6]
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 拍肩膀动作（更明显，拍3次）
+        for i in range(3):
+            names = ["RElbowRoll"]
+            angles = [0.8]  # 向上
+            times = [0.25]
+            motion.angleInterpolation(names, angles, times, True)
+            angles = [0.5]  # 向下拍
+            times = [0.25]
+            motion.angleInterpolation(names, angles, times, True)
+            time.sleep(0.1)
+        
+        # 保持一下，表示温暖
+        time.sleep(0.5)
+        
+        # 缓慢恢复
+        names = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        angles = [1.3, -0.1, 0.0, -1.0]
+        times = [0.6, 0.6, 0.6, 0.6]
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Empathetic pat shoulder error: %s" % e)
+
+def professional_small_nod(motion):
+    """专业性格小动作：轻微点头"""
+    if motion is None:
+        return
+    try:
+        names = ["HeadPitch"]
+        angles = [0.1]  # 很小的点头幅度
+        times = [0.2]
+        motion.angleInterpolation(names, angles, times, True)
+        angles = [0.0]
+        times = [0.2]
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Professional small nod error: %s" % e)
+
+def professional_hand_gesture(motion):
+    """专业性格小动作：轻微的手势"""
+    if motion is None:
+        return
+    try:
+        # 右手轻微抬起，做专业手势
+        names = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        angles = [0.8, -0.2, 0.5, -0.5]  # 轻微抬起
+        times = [0.4, 0.4, 0.4, 0.4]
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持
+        time.sleep(0.5)
+        
+        # 恢复
+        angles = [1.3, -0.1, 0.0, -1.0]
+        times = [0.3, 0.3, 0.3, 0.3]
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Professional hand gesture error: %s" % e)
+
+def empathetic_gentle_tilt(motion):
+    """共情性格轻微歪头：头部轻微向一侧倾斜，表示理解和关注"""
+    if motion is None:
+        return
+    try:
+        names = ["HeadYaw"]
+        # 轻微向一侧倾斜（幅度小，0.15）
+        angles = [0.15]
+        times = [0.4]  # 缓慢
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持一下
+        time.sleep(1.0)
+        
+        # 恢复
+        angles = [0.0]
+        times = [0.4]
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Empathetic gentle tilt error: %s" % e)
+
+def empathetic_stroke(motion):
+    """共情性格抚摸动作：手部轻柔地做抚摸动作，表示安慰和关怀"""
+    if motion is None:
+        return
+    try:
+        # 右手抬起，准备抚摸
+        names = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        angles = [0.5, -0.3, 0.7, 0.5]  # 手在胸前位置
+        times = [0.5, 0.5, 0.5, 0.5]
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 轻柔的抚摸动作（前后轻微移动）
+        for i in range(2):
+            # 向前
+            names = ["RElbowRoll"]
+            angles = [0.6]
+            times = [0.3]
+            motion.angleInterpolation(names, angles, times, True)
+            # 向后
+            angles = [0.4]
+            times = [0.3]
+            motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持一下
+        time.sleep(0.5)
+        
+        # 缓慢恢复
+        names = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        angles = [1.3, -0.1, 0.0, -1.0]
+        times = [0.6, 0.6, 0.6, 0.6]
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Empathetic stroke error: %s" % e)
+
+def empathetic_heart_touch(motion):
+    """共情性格心口轻触：右手缓慢抬起，轻轻触碰自己胸前的金属外壳（对应心脏位置），保持3秒"""
+    if motion is None:
+        return
+    try:
+        # 右手缓慢抬起，准备触碰心口
+        names = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        # 手到心口位置（胸前左侧，对应心脏位置）
+        angles = [0.3, -0.6, 0.8, 0.6]  # 手在心口位置
+        times = [0.8, 0.8, 0.8, 0.8]  # 缓慢抬起
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 轻轻触碰（稍微向前一点，模拟触碰）
+        angles = [0.25, -0.65, 0.85, 0.65]  # 稍微向前触碰
+        times = [0.3, 0.3, 0.3, 0.3]
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持3秒（表示用心感受）
+        time.sleep(3.0)
+        
+        # 缓慢恢复
+        angles = [1.3, -0.1, 0.0, -1.0]
+        times = [0.8, 0.8, 0.8, 0.8]  # 缓慢恢复
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Empathetic heart touch error: %s" % e)
+
+def empathetic_gift_presentation(motion):
+    """共情性格礼物呈递：双手虚拟托着东西，从腹部高度缓慢推向前方用户"""
+    if motion is None:
+        return
+    try:
+        # 双手在腹部高度，虚拟托着东西
+        names = ["LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll",
+                 "RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll"]
+        # 双手在腹部位置，手掌向上，托着东西
+        angles = [1.0, 0.3, -1.2, -0.5, 1.0, -0.3, 1.2, 0.5]  # 腹部高度
+        times = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]  # 缓慢
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持一下，表示托着东西
+        time.sleep(0.5)
+        
+        # 从腹部高度缓慢推向前方用户
+        angles = [0.4, 0.4, -1.3, -0.3, 0.4, -0.4, 1.3, 0.3]  # 向前推出
+        times = [1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2]  # 缓慢推出
+        motion.angleInterpolation(names, angles, times, True)
+        
+        # 保持推出姿势
+        time.sleep(1.5)
+        
+        # 缓慢收回
+        angles = [1.3, 0.1, -1.5, -1.0, 1.3, -0.1, 1.5, 1.0]
+        times = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]  # 缓慢收回
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Empathetic gift presentation error: %s" % e)
+
+def head_only_nod(motion):
+    """只做头部动作：轻微点头（用于录音期间）"""
+    if motion is None:
+        return
+    try:
+        names = ["HeadPitch"]
+        angles = [0.1]  # 轻微点头
+        times = [0.3]
+        motion.angleInterpolation(names, angles, times, True)
+        angles = [0.0]
+        times = [0.3]
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Head only nod error: %s" % e)
+
+def head_only_tilt(motion):
+    """只做头部动作：轻微歪头（用于录音期间）"""
+    if motion is None:
+        return
+    try:
+        names = ["HeadYaw"]
+        angles = [0.1]  # 轻微歪头
+        times = [0.4]
+        motion.angleInterpolation(names, angles, times, True)
+        angles = [0.0]
+        times = [0.4]
+        motion.angleInterpolation(names, angles, times, True)
+    except Exception as e:
+        print("Head only tilt error: %s" % e)
+
+def perform_head_actions_during_recording(motion, duration, personality=None):
+    """在录音期间只做头部动作"""
+    if motion is None:
+        return
+    
+    import threading
+    import random
+    
+    # 在录音期间持续执行头部动作
+    def continuous_head_actions():
+        action_count = 0
+        action_interval = 2.5  # 每2.5秒执行一个头部动作
+        
+        while action_count < int(duration / action_interval):
+            try:
+                # 只做头部动作：点头或轻微歪头
+                head_actions = [
+                    head_only_nod,  # 点头
+                    head_only_tilt   # 轻微歪头
+                ]
+                action = random.choice(head_actions)
+                action(motion)
+                time.sleep(action_interval)
+                action_count += 1
+            except:
+                break
+    
+    # 启动头部动作线程
+    head_action_thread = threading.Thread(target=continuous_head_actions)
+    head_action_thread.daemon = True
+    head_action_thread.start()
+
 # ==================== 动作选择函数 ====================
 
 def select_action_by_text(text, motion, animation, personality=None):
@@ -771,79 +1046,90 @@ def select_action_by_text(text, motion, animation, personality=None):
     
     # 开场白关键词
     if any(keyword in text_u for keyword in [u'你好', u'感谢', u'开始', u'欢迎', u'准备好了', u'嗨']):
-        if personality == 'humorous':
-            greeting_action(motion, animation)
-            humorous_quick_nod(motion)
-        elif personality == 'gentle':
-            gentle_bow(motion)
+        if personality == 'professional':
+            # 专业性格：挥手+点头
             gentle_wave(motion)
+            time.sleep(0.3)
+            professional_small_nod(motion)
+        elif personality == 'empathetic':
+            # 共情性格：挥手+轻微点头
+            gentle_wave(motion)
+            time.sleep(0.3)
+            gentle_slow_nod(motion)
         else:
             greeting_action(motion, animation)
         return
     
     # 结束语关键词
     if any(keyword in text_u for keyword in [u'感谢', u'再见', u'祝你', u'结束', u'再见', u'欢迎回来', u'先到这里']):
-        if personality == 'humorous':
-            closing_action(motion)
-            humorous_quick_nod(motion)
-        elif personality == 'gentle':
-            gentle_bow(motion)
+        if personality == 'professional':
+            # 专业性格：点头+挥手
+            professional_small_nod(motion)
+            time.sleep(0.3)
             gentle_wave(motion)
+        elif personality == 'empathetic':
+            # 共情性格：挥手+点头
+            gentle_wave(motion)
+            time.sleep(0.3)
+            gentle_slow_nod(motion)
         else:
             closing_action(motion)
         return
     
     # 根据性格选择专属动作
-    if personality == 'humorous':
-        # 幽默性格：随机选择幽默动作
+    if personality == 'professional':
+        # 专业评估性格：只使用点头和挥手
         import random
-        humorous_actions = [
-            humorous_quick_nod,
-            humorous_tilt_head,
-            humorous_hip_sway,
-            humorous_shrug,
-            humorous_finger_circle,
-            humorous_sway_forward_back
+        professional_actions = [
+            professional_small_nod,  # 点头
+            gentle_wave  # 挥手
         ]
-        # 根据文本内容选择特定动作
-        if any(keyword in text_u for keyword in [u'不知道', u'不清楚', u'不确定']):
-            humorous_shrug(motion)
-        elif any(keyword in text_u for keyword in [u'看', u'观察', u'发现']):
-            humorous_look_around(motion)
-        elif any(keyword in text_u for keyword in [u'尴尬', u'不好意思', u'害羞']):
-            humorous_cover_face(motion)
-        else:
-            # 随机选择一个幽默动作
-            action = random.choice(humorous_actions)
-            action(motion)
+        # 随机选择点头或挥手
+        action = random.choice(professional_actions)
+        action(motion)
         return
     
-    elif personality == 'gentle':
-        # 温柔性格：随机选择温柔动作
+    elif personality == 'empathetic':
+        # 共情性格：使用温暖、理解的动作
+        # 动作包括：点头、歪头（轻微）、挥手、拥抱、轻轻拍肩、抚摸、心口轻触、礼物呈递
         import random
-        gentle_actions = [
-            gentle_slow_nod,
-            gentle_listen_tilt,
-            gentle_hands_heart,
-            gentle_invite_gesture,
-            gentle_pat_shoulder,
-            gentle_share_gesture,
-            gentle_comforting_gesture
+        empathetic_actions = [
+            gentle_slow_nod,  # 点头
+            empathetic_gentle_tilt,  # 歪头（轻微）
+            gentle_wave,  # 挥手
+            empathetic_hug,  # 拥抱
+            empathetic_pat_shoulder,  # 轻轻拍肩
+            empathetic_stroke,  # 抚摸
+            empathetic_heart_touch,  # 心口轻触
+            empathetic_gift_presentation  # 礼物呈递
         ]
         # 根据文本内容选择特定动作
-        if any(keyword in text_u for keyword in [u'听', u'倾听', u'了解']):
-            gentle_listen_tilt(motion)
-        elif any(keyword in text_u for keyword in [u'理解', u'明白', u'知道', u'感受']):
-            gentle_hands_heart(motion)
-        elif any(keyword in text_u for keyword in [u'邀请', u'欢迎', u'来吧']):
-            gentle_invite_gesture(motion)
-        elif any(keyword in text_u for keyword in [u'安慰', u'支持', u'陪伴']):
-            gentle_comforting_gesture(motion)
-        elif any(keyword in text_u for keyword in [u'分享', u'给你', u'递']):
-            gentle_share_gesture(motion)
+        if any(keyword in text_u for keyword in [u'理解', u'明白', u'知道', u'感受', u'同情', u'共情', u'我懂', u'我理解', u'用心', u'真心']):
+            # 理解时使用拥抱、拍肩膀、抚摸或心口轻触
+            rand = random.random()
+            if rand < 0.25:
+                empathetic_hug(motion)
+            elif rand < 0.5:
+                empathetic_pat_shoulder(motion)
+            elif rand < 0.75:
+                empathetic_stroke(motion)
+            else:
+                empathetic_heart_touch(motion)  # 心口轻触，表示用心理解
+        elif any(keyword in text_u for keyword in [u'安慰', u'支持', u'陪伴', u'陪伴你', u'支持你']):
+            # 安慰时使用拥抱、抚摸或心口轻触
+            rand = random.random()
+            if rand < 0.33:
+                empathetic_hug(motion)
+            elif rand < 0.66:
+                empathetic_stroke(motion)
+            else:
+                empathetic_heart_touch(motion)
+        elif any(keyword in text_u for keyword in [u'给你', u'送', u'礼物', u'分享', u'递']):
+            # 给予时使用礼物呈递
+            empathetic_gift_presentation(motion)
         else:
-            # 随机选择一个温柔动作
-            action = random.choice(gentle_actions)
+            # 随机选择一个共情动作
+            action = random.choice(empathetic_actions)
             action(motion)
         return
     
@@ -877,31 +1163,45 @@ def perform_action_during_speech(text, motion, animation, duration, personality=
     # 在说话期间持续执行动作
     def continuous_actions():
         action_count = 0
-        while action_count < int(duration / 2.0):  # 每2秒执行一个动作
+        # 根据性格调整动作频率
+        if personality == 'professional':
+            action_interval = 3.0  # 专业性格：动作间隔长，动作小
+        elif personality == 'empathetic':
+            action_interval = 2.0  # 共情性格：动作间隔短，动作大
+        else:
+            action_interval = 2.5  # 默认
+        
+        while action_count < int(duration / action_interval):
             try:
-                if personality == 'humorous':
-                    # 幽默性格：频繁执行各种幽默动作
-                    humorous_actions = [
-                        humorous_quick_nod,
-                        humorous_tilt_head,
-                        humorous_sway_forward_back
+                if personality == 'professional':
+                    # 专业评估性格：只使用点头和挥手
+                    professional_actions = [
+                        professional_small_nod,  # 点头
+                        gentle_wave  # 挥手
                     ]
-                    action = random.choice(humorous_actions)
+                    action = random.choice(professional_actions)
                     action(motion)
-                    time.sleep(1.5)  # 动作间隔短
-                elif personality == 'gentle':
-                    # 温柔性格：缓慢执行温柔动作
-                    gentle_actions = [
-                        gentle_slow_nod,
-                        gentle_listen_tilt
+                    time.sleep(action_interval)
+                elif personality == 'empathetic':
+                    # 共情性格：使用点头、歪头（轻微）、挥手、拥抱、轻轻拍肩、抚摸、心口轻触、礼物呈递
+                    empathetic_actions = [
+                        gentle_slow_nod,  # 点头
+                        empathetic_gentle_tilt,  # 歪头（轻微）
+                        gentle_wave,  # 挥手
+                        empathetic_hug,  # 拥抱
+                        empathetic_pat_shoulder,  # 轻轻拍肩
+                        empathetic_stroke,  # 抚摸
+                        empathetic_heart_touch,  # 心口轻触
+                        empathetic_gift_presentation  # 礼物呈递
                     ]
-                    action = random.choice(gentle_actions)
+                    # 随机选择一个共情动作
+                    action = random.choice(empathetic_actions)
                     action(motion)
-                    time.sleep(2.5)  # 动作间隔长
+                    time.sleep(action_interval)
                 else:
                     # 默认：定期点头
                     gentle_nod(motion, 1)
-                    time.sleep(2.0)
+                    time.sleep(action_interval)
                 action_count += 1
             except:
                 break
